@@ -1,0 +1,143 @@
+import processing.net.*;
+import controlP5.*;
+import meter.*;
+
+Client client;
+ControlP5 p5;
+PFont Font;
+
+boolean swState = false;
+
+char lastCom;
+float prevDistance = 0;
+
+String data;
+void setup() {
+client = new Client(this,"10.197.64.172",3000);
+//client.write("I am a new client\n"); 
+ 
+size(400, 700);
+p5 = new ControlP5(this);
+
+background(255);
+
+Font = createFont("Arial", 80);
+
+Button Stop = p5.addButton("Stop").setPosition(0, 400).setSize(400, 300).setLabel("Stop");
+Button Forward = p5.addButton("Start").setPosition(0, 100).setSize(400, 300).setLabel("Start");
+
+Forward.setFont(Font);
+Stop.setFont(Font);
+
+Forward.setColorBackground(color(0, 0, 100)) 
+          .setColorForeground(color(0, 0, 150)) 
+          .setColorActive(color(0, 0, 255))     
+          .setColorCaptionLabel(color(255));  
+          
+Stop.setColorBackground(color(80, 0, 0)) 
+          .setColorForeground(color(120, 0, 0)) 
+          .setColorActive(color(255, 0, 0))     
+          .setColorCaptionLabel(color(255));  
+          
+fill(0);
+textSize(50);
+
+}
+
+void draw() {
+  
+   
+ 
+  USSensor();
+  WheelEncoder();
+  //delay(200);
+} 
+    
+
+void Start() {
+  sendCommand('F'); 
+  lastCom = 'F';
+   //fill(255);
+   //rect(0, 0, 400, 400);
+   //fill(0);
+}
+
+void Left() {sendCommand('L');}
+void Right() {sendCommand('R');}
+void Backwards() {sendCommand('Y');}
+
+void Stop() {
+  sendCommand('S');
+  lastCom = 'S';
+
+}
+
+
+void sendCommand (char command) {
+  if (client.active()) {
+    println("Command Sent: " + command);
+    client.write(command);
+  } else {
+    println("No Connection");
+  }
+}
+
+void USSensor(){
+  if(client.active()) {
+   // background(225);
+      textSize(25);
+      String obstaclesAhead = client.readStringUntil('\n');
+      if (obstaclesAhead != null && obstaclesAhead.trim().equals("stop")) {
+        //if (obstaclesAhead != null) {
+        //   if (obstaclesAhead.startsWith("S:")) {
+        //      //print(distance);
+              //String distanceStr = obstaclesAhead.substring(2); // Extract number
+              //float distanceFloat = float(distanceStr);
+              println("Obstacle ahead, stopping.");
+              text("Obstacle ahead, stopping.", 15, 30);
+              //text("Distance from object: " + distanceFloat + " cm", 15, 30);
+              //delay(200);
+            //}
+        }
+      //if (obstaclesAhead != null && obstaclesAhead.trim().equals("nothing")) {
+      //  fill(255);
+      //    rect(0, 0, 400, 400);
+      //   fill(0);
+      //}
+    }
+ }
+  
+ void WheelEncoder() {
+   if(client.active()) {
+      textSize(25);
+      //fill(225);
+      String distanceTravelled = client.readStringUntil('\n'); // Read data
+
+      if (distanceTravelled != null && distanceTravelled.length() > 0) {
+         distanceTravelled = distanceTravelled.trim();  // Clean whitespace
+         if (distanceTravelled.startsWith("D:")) { // Check if correct data format
+             String distanceValueStr = distanceTravelled.substring(2); // Extract number
+             float distanceTravFloat = float(distanceValueStr);
+             if (distanceTravFloat != prevDistance) {
+               //fill(255);
+               fill(255);
+               rect(0, 0, 400, 400);
+               fill(0);
+               println("Total distance: " + distanceTravFloat + " m");
+               text("Distance Travelled: " + distanceTravFloat + " m", 15, 70);
+               prevDistance = distanceTravFloat;
+             }
+         } else {
+             println("Invalid data received: " + distanceTravelled);
+         }
+      }
+   } 
+}
+ 
+ 
+
+
+ 
+ 
+ 
+ 
