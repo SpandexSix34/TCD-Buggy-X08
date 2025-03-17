@@ -1,0 +1,171 @@
+import processing.net.*;
+import processing.serial.*;
+import controlP5.*;
+import meter.*;
+
+Client client;
+ControlP5 p5;
+PFont Font;
+PFont Font1;
+
+boolean swState = false;
+
+char lastCom;
+float prevDistance = 0;
+
+String data;
+
+void setup() {
+client = new Client(this,"10.163.240.172",3000);
+//client.write("I am a new client\n"); 
+ 
+size(400, 500);
+p5 = new ControlP5(this);
+
+background(215, 218, 222);
+
+Font = createFont("Arial", 30);
+Font1 = createFont("Arial", 15);
+
+Button Stop = p5.addButton("Stop").setPosition(210, 400).setSize(170, 60).setLabel("Stop");
+Button Forward = p5.addButton("Start").setPosition(30, 400).setSize(170, 60).setLabel("Start");
+Button FollowObject = p5.addButton("Follow_Object").setPosition(30, 230).setSize(170, 60).setLabel("Follow object");
+Button ChangeSpeed = p5.addButton("Change_Speed").setPosition(210, 230).setSize(170, 60).setLabel("Change speed");
+
+Slider ChangeSpeed2 = p5.addSlider("ChangeSpeed").setPosition(30, 310).setSize(350, 60).setRange(0, 110).setValue(0.00);
+
+Forward.setFont(Font);
+Stop.setFont(Font);
+FollowObject.setFont(Font1);
+ChangeSpeed.setFont(Font1);
+
+Forward.setColorBackground(color(130, 131, 155)) 
+       .setColorForeground(color(181,183, 216))   
+       .setColorActive(color(181,183, 216))     
+       .setColorCaptionLabel(color(255));
+
+Stop.setColorBackground(color(130, 131, 155))    
+       .setColorForeground(color(181,183, 216))   
+       .setColorActive(color(181,183, 216))     
+       .setColorCaptionLabel(color(255));
+    
+FollowObject.setColorBackground(color(26, 36, 201))   
+       .setColorForeground(color(110, 117, 242))  
+       .setColorActive(color(110, 117, 242))      
+       .setColorCaptionLabel(color(255));
+       
+ChangeSpeed.setColorBackground(color(26, 36, 201))   
+       .setColorForeground(color(110, 117, 242))  
+       .setColorActive(color(110, 117, 242))      
+       .setColorCaptionLabel(color(255));
+
+ChangeSpeed2.setColorBackground(color(26, 36, 201))  
+       .setColorForeground(color(110, 117, 242))        
+       .setColorActive(color(110, 117, 242))       
+       .setColorValue(color(255));
+          
+fill(0);
+textSize(25);
+textAlign(LEFT);
+}
+
+
+void draw() {
+  
+  USSensor();
+  WheelEncoder();
+  //delay(200);
+  
+ // text("Speed: " + 50, 30, 80);
+text("DISTANCE TRAVELLED: " + 10, 30, 130);
+text("DISTANCE FROM OBJECT: " + 100, 30, 180);
+//text("Obstacle ahead, stopping.", 30, 90);
+
+}
+
+void Start() {
+  sendCommand('F'); 
+  lastCom = 'F';
+}
+
+
+void Stop() {
+  sendCommand('S');
+  lastCom = 'S';
+}
+
+void Follow_Object() {
+  sendCommand('A');
+  lastCom = 'A';
+}
+
+void Change_Speed() {
+  sendCommand('B');
+  lastCom = 'B';
+}
+
+
+void sendCommand (char command) {
+  if (client.active()) {
+    println("Command Sent: " + command);
+    client.write(command);
+  } else {
+    println("No Connection");
+  }
+}
+
+void USSensor(){
+  if(client.active()) {
+   // background(225);
+      textSize(25);
+      String obstaclesAhead = client.readStringUntil('\n');
+      if (obstaclesAhead != null && obstaclesAhead.trim().equals("stop")) {
+              println("Obstacle ahead, stopping.");
+              text("Obstacle ahead, stopping.", 30, 90);
+      }
+      if (obstaclesAhead != null && obstaclesAhead.trim().equals("nothing")) {
+          fill(215, 218, 222);
+          //stroke(0);
+          rect(270, 100, 80, 40); //retest
+          fill(0);
+      }
+    }
+}
+  
+ void WheelEncoder() {
+   if(client.active()) {
+      textSize(25);
+      //fill(225);
+      String distanceTravelled = client.readStringUntil('\n'); // Read data
+
+      if (distanceTravelled != null && distanceTravelled.length() > 0) {
+         distanceTravelled = distanceTravelled.trim();  // Clean whitespace
+         if (distanceTravelled.startsWith("D:")) { // Check if correct data format
+             String distanceValueStr = distanceTravelled.substring(2); // Extract number
+             float distanceTravFloat = float(distanceValueStr);
+             if (distanceTravFloat != prevDistance) {
+                fill(215, 218, 222);
+                //stroke(0);
+               rect(300, 150, 80, 40); //retest
+                fill(0);
+               textAlign(CENTER, CENTER);
+               println("Total distance: " + distanceTravFloat + " m");
+               
+               //text("Distance Travelled: " + distanceTravFloat + " m", 15, 70);
+               
+               text(distanceTravFloat + "m", 300, 180);
+               prevDistance = distanceTravFloat;
+             }
+         } 
+      }
+   }
+}
+
+void MotorSpeed(int changeSpeed) {
+  if (client.active()) {
+    println("Sent Speed: " + changeSpeed);
+    client.write(changeSpeed);
+   }else {
+    println("No Connection");
+  }
+}
