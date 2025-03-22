@@ -10,6 +10,8 @@ PFont Font1;
 
 boolean swState = false;
 
+float prevspeed = 0;
+
 String lastCom;
 float prevDistance = 0;
 float prevDistanceAway = 0;
@@ -32,7 +34,7 @@ long lastCommandTime = 0;
 final int COMMAND_RATE = 100; // Send commands at most every 100ms
 
 void setup() {
-  client = new Client(this, "192.168.0.28", 3000);
+  client = new Client(this, "10.163.240.172", 3000);
    
   size(400, 800);
   p5 = new ControlP5(this);
@@ -42,17 +44,20 @@ void setup() {
   Font = createFont("Arial", 30);
   Font1 = createFont("Arial", 15);
 
-  Button Stop = p5.addButton("Stop").setPosition(210, 400).setSize(170, 60).setLabel("Stop");
-  Button Forward = p5.addButton("Start").setPosition(30, 400).setSize(170, 60).setLabel("Forward");
-  Button FollowObject = p5.addButton("Follow_Object").setPosition(30, 230).setSize(170, 60).setLabel("Follow object");
-  Button ChangeSpeed = p5.addButton("Change_Speed").setPosition(210, 230).setSize(170, 60).setLabel("Change speed");
+Button Stop = p5.addButton("Stop").setPosition(210, 465).setSize(170, 60).setLabel("Stop");
+  Button Forward = p5.addButton("Start").setPosition(30, 465).setSize(170, 60).setLabel("Start");
+  Button FollowObject = p5.addButton("Follow_Object").setPosition(30, 265).setSize(170, 60).setLabel("Follow object");
+  Button RemoteControl = p5.addButton("RemoteControl").setPosition(210, 265).setSize(170, 60).setLabel("Remote Control");
+  Button ChangeSpeed = p5.addButton("Change_Speed").setPosition(110, 330).setSize(170, 50).setLabel("Change speed");
+  Button Auto =  p5.addButton("Auto").setPosition(110, 190).setSize(170, 60).setLabel("AUTO");
   Button Left = p5.addButton("Left").setPosition(30, 550).setSize(170, 60).setLabel("Left");
   Button Right = p5.addButton("Right").setPosition(210, 550).setSize(170, 60).setLabel("Right");
   Button Backward = p5.addButton("Backward").setPosition(120, 620).setSize(170, 60).setLabel("Backward");
 
+
   // Initialize slider and attach it to the sliderValue variable
   ChangeSpeed2 = p5.addSlider("updateSliderValue")
-    .setPosition(30, 310)
+    .setPosition(30, 390)
     .setSize(350, 60)
     .setRange(0, 255)
     .setValue(0.00);
@@ -76,6 +81,16 @@ void setup() {
        .setColorCaptionLabel(color(255));
       
   FollowObject.setColorBackground(color(26, 36, 201))   
+         .setColorForeground(color(110, 117, 242))  
+         .setColorActive(color(110, 117, 242))      
+         .setColorCaptionLabel(color(255));
+         
+RemoteControl.setColorBackground(color(26, 36, 201))   
+         .setColorForeground(color(110, 117, 242))  
+         .setColorActive(color(110, 117, 242))      
+         .setColorCaptionLabel(color(255));
+         
+Auto.setColorBackground(color(26, 36, 201))   
          .setColorForeground(color(110, 117, 242))  
          .setColorActive(color(110, 117, 242))      
          .setColorCaptionLabel(color(255));
@@ -119,52 +134,13 @@ void draw() {
   float distanceTravelled = WheelEncoder();
   float distanceAway = readDistance();
   
-  // Display the current slider value
-  text("SPEED: " + int(sliderValue), 30, 80);
-  
   text("DISTANCE TRAVELLED:   " + distanceTravelled, 30, 130);
   
   text("DISTANCE FROM OBJECT:   " + distanceAway, 30, 180);
   
-  // Show key press status
-  fill(0);
-  textSize(15);
-  text("WASD Keys:", 30, 700);
-  text("W: " + (wPressed ? "ON" : "OFF"), 30, 720);
-  text("A: " + (aPressed ? "ON" : "OFF"), 90, 720);
-  text("S: " + (sPressed ? "ON" : "OFF"), 150, 720);
-  text("D: " + (dPressed ? "ON" : "OFF"), 210, 720);
-  
-  // Check for key presses and send commands
-  checkKeysAndSendCommands();
-}
-
-void checkKeysAndSendCommands() {
-  // Only send commands at a controlled rate to prevent flooding
-  if (millis() - lastCommandTime < COMMAND_RATE) {
-    return;
-  }
-  
-  // Check for key presses
-  if (wPressed) {
-    sendCommand("Forward");
-    lastCommandTime = millis();
-    lastCom = "Forward";
-  } else if (sPressed) {
-    sendCommand("Backward");
-    lastCommandTime = millis();
-    lastCom = "Backward";
-  } else if (aPressed) {
-    sendCommand("Left");
-    lastCommandTime = millis();
-    lastCom = "Left";
-  } else if (dPressed) {
-    sendCommand("Right");
-    lastCommandTime = millis();
-    lastCom = "Right";
-  }
-  
-  // Check for button presses (handled by ControlP5 events)
+  float speed = readSpeed();
+  text("SPEED: " + speed, 30, 80);
+ 
 }
 
 void mousePressed() {
@@ -277,9 +253,19 @@ void Right() {
   lastCom = "Right";
 }
 
+void RemoteControl() {
+  sendCommand("Remote");
+  lastCom = "Remote";
+}
+
 void Backward() {
   sendCommand("Backward");
   lastCom = "Backward";
+}
+
+void Auto() {
+  sendCommand("Self");
+  lastCom = "Self";
 }
 
 void Change_Speed() {
@@ -325,6 +311,26 @@ void USSensor() {
       fill(0);
     }
   }
+}
+
+float readSpeed() {
+  if (client.active()) {
+    textSize(25);
+    String speed = client.readStringUntil('\n'); // Read data
+    if (speed != null && speed.length() > 0) {
+      speed = speed.trim();  // Clean whitespace
+      if (speed.startsWith("Speed:")) { // Check if correct data format
+        String speedStr = speed.substring(6); // Extract number
+        float speedFloat = float(speedStr);
+        if (speedFloat != prevspeed) {
+           prevspeed = speedFloat;
+           println("actual speed = " + speedStr);
+            return speedFloat;
+        }
+      }
+    }
+  }
+  return prevspeed;
 }
 
 float WheelEncoder() {
