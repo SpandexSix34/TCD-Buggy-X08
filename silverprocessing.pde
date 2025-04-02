@@ -42,6 +42,9 @@ void setup() {
   Button ChangeSpeed = p5.addButton("Change_Speed").setPosition(210, 240).setSize(170, 60).setLabel("Change speed");
   Button Auto = p5.addButton("Auto").setPosition(30, 182).setSize(170, 50).setLabel("Auto");
   Button Remote = p5.addButton("Remote").setPosition(210, 182).setSize(170, 50).setLabel("Remote");
+  Button Left = p5.addButton("Left").setPosition(30, 550).setSize(170, 60).setLabel("Left");
+  Button Right = p5.addButton("Right").setPosition(210, 550).setSize(170, 60).setLabel("Right");
+  Button Backward = p5.addButton("Backward").setPosition(120, 620).setSize(170, 60).setLabel("Backward");
 
   // Initialize slider and attach it to the sliderValue variable
   ChangeSpeed2 = p5.addSlider("updateSliderValue")
@@ -85,7 +88,21 @@ void setup() {
          .setColorForeground(color(110, 117, 242))        
          .setColorActive(color(110, 117, 242))       
          .setColorValue(color(255));
+
+Left.setColorBackground(color(130, 131, 155)) 
+         .setColorForeground(color(181, 183, 216))   
+         .setColorActive(color(181, 183, 216))     
+         .setColorCaptionLabel(color(255));
          
+  Right.setColorBackground(color(130, 131, 155)) 
+         .setColorForeground(color(181, 183, 216))   
+         .setColorActive(color(181, 183, 216))     
+         .setColorCaptionLabel(color(255));
+         
+  Backward.setColorBackground(color(130, 131, 155)) 
+         .setColorForeground(color(181, 183, 216))   
+         .setColorActive(color(181, 183, 216))     
+         .setColorCaptionLabel(color(255));
             
   fill(0);
   textSize(25);
@@ -173,6 +190,21 @@ void Start() {
 void Stop() {
   sendCommand("Stop");
   lastCom = "Stop";
+}
+
+void Left() {
+  sendCommand("Left");
+  lastCom = "Left";
+}
+
+void Right() {
+  sendCommand("Right");
+  lastCom = "Right";
+}
+
+void Backward() {
+  sendCommand("Backward");
+  lastCom = "Backward";
 }
 
 void Remote() {
