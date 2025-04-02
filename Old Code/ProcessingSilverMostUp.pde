@@ -50,9 +50,7 @@ Button Stop = p5.addButton("Stop").setPosition(210, 465).setSize(170, 60).setLab
   Button RemoteControl = p5.addButton("RemoteControl").setPosition(210, 265).setSize(170, 60).setLabel("Remote Control");
   Button ChangeSpeed = p5.addButton("Change_Speed").setPosition(110, 330).setSize(170, 50).setLabel("Change speed");
   Button Auto =  p5.addButton("Auto").setPosition(110, 190).setSize(170, 60).setLabel("AUTO");
-  Button Left = p5.addButton("Left").setPosition(30, 550).setSize(170, 60).setLabel("Left");
-  Button Right = p5.addButton("Right").setPosition(210, 550).setSize(170, 60).setLabel("Right");
-  Button Backward = p5.addButton("Backward").setPosition(120, 620).setSize(170, 60).setLabel("Backward");
+  
 
 
   // Initialize slider and attach it to the sliderValue variable
@@ -66,9 +64,7 @@ Button Stop = p5.addButton("Stop").setPosition(210, 465).setSize(170, 60).setLab
   Stop.setFont(Font);
   FollowObject.setFont(Font1);
   ChangeSpeed.setFont(Font1);
-  Left.setFont(Font);
-  Right.setFont(Font);
-  Backward.setFont(Font);
+
 
   Forward.setColorBackground(color(130, 131, 155)) 
          .setColorForeground(color(181, 183, 216))   
@@ -104,22 +100,7 @@ Auto.setColorBackground(color(26, 36, 201))
          .setColorForeground(color(110, 117, 242))        
          .setColorActive(color(110, 117, 242))       
          .setColorValue(color(255));
-         
-  Left.setColorBackground(color(130, 131, 155)) 
-         .setColorForeground(color(181, 183, 216))   
-         .setColorActive(color(181, 183, 216))     
-         .setColorCaptionLabel(color(255));
-         
-  Right.setColorBackground(color(130, 131, 155)) 
-         .setColorForeground(color(181, 183, 216))   
-         .setColorActive(color(181, 183, 216))     
-         .setColorCaptionLabel(color(255));
-         
-  Backward.setColorBackground(color(130, 131, 155)) 
-         .setColorForeground(color(181, 183, 216))   
-         .setColorActive(color(181, 183, 216))     
-         .setColorCaptionLabel(color(255));
-            
+
   fill(0);
   textSize(25);
   textAlign(LEFT);
@@ -241,21 +222,6 @@ void Stop() {
 void Follow_Object() {
   sendCommand("PID");
   lastCom = "PID";
-}
-
-void Left() {
-  sendCommand("Left");
-  lastCom = "Left";
-}
-
-void Right() {
-  sendCommand("Right");
-  lastCom = "Right";
-}
-
-void RemoteControl() {
-  sendCommand("Remote");
-  lastCom = "Remote";
 }
 
 void Backward() {
