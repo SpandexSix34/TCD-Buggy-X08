@@ -40,7 +40,8 @@ void setup() {
   Button Forward = p5.addButton("Start").setPosition(30, 410).setSize(170, 60).setLabel("Start");
   Button FollowObject = p5.addButton("Follow_Object").setPosition(30, 240).setSize(170, 60).setLabel("Follow object");
   Button ChangeSpeed = p5.addButton("Change_Speed").setPosition(210, 240).setSize(170, 60).setLabel("Change speed");
-  Button Auto = p5.addButton("Auto").setPosition(135, 182).setSize(170, 50).setLabel("Auto");
+  Button Auto = p5.addButton("Auto").setPosition(30, 182).setSize(170, 50).setLabel("Auto");
+  Button Remote = p5.addButton("Remote").setPosition(210, 182).setSize(170, 50).setLabel("Remote");
 
   // Initialize slider and attach it to the sliderValue variable
   ChangeSpeed2 = p5.addSlider("updateSliderValue")
@@ -76,6 +77,11 @@ void setup() {
          .setColorCaptionLabel(color(255));
 
  Auto.setColorBackground(color(26, 36, 201))  
+         .setColorForeground(color(110, 117, 242))        
+         .setColorActive(color(110, 117, 242))       
+         .setColorValue(color(255));
+
+ Remote.setColorBackground(color(26, 36, 201))  
          .setColorForeground(color(110, 117, 242))        
          .setColorActive(color(110, 117, 242))       
          .setColorValue(color(255));
@@ -167,6 +173,11 @@ void Start() {
 void Stop() {
   sendCommand("Stop");
   lastCom = "Stop";
+}
+
+void Remote() {
+  sendCommand("Remote");
+  lastCom = "Remote";
 }
 
 void Follow_Object() {
